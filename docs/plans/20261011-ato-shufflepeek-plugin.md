@@ -102,15 +102,15 @@ The plugin never changes game state, so multiplayer sync is unaffected.
 **Files:**
 - Modify: `src/Plugin.cs`
 
-- [ ] Bind the config entries:
+- [x] Bind the config entries:
   - `General.Enabled` (bool, default true)
   - `Overlay.PositionX` and `Overlay.PositionY` (int, default 20 each)
   - `Overlay.FontSize` (int, default 18, `AcceptableValueRange<int>(10, 48)`)
   - `Hotkey.Toggle` (`KeyboardShortcut`, default `KeyCode.F8`)
-- [ ] Expose a static `Log` (`ManualLogSource`) and the config entries to the other classes.
-- [ ] Create a persistent `GameObject("ShufflePeek")` with `DontDestroyOnLoad` and `hideFlags = HideAndDontSave`, and add `OverlayBehaviour` to it (an empty stub for now).
-- [ ] Subscribe to `SceneManager.activeSceneChanged` to hide the overlay.
-- [ ] Tests: no new unit-testable logic. Re-run `dotnet test` and the warning-free Release build.
+- [x] Expose a static `Log` (`ManualLogSource`) and the config entries to the other classes.
+- [x] Create a persistent `GameObject("ShufflePeek")` with `DontDestroyOnLoad` and `hideFlags = HideAndDontSave`, and add `OverlayBehaviour` to it (an empty stub for now).
+- [x] Subscribe to `SceneManager.activeSceneChanged` to hide the overlay.
+- [x] Tests: no new unit-testable logic. Re-run `dotnet test` and the warning-free Release build.
 
 ### Task 4: Overlay behaviour
 
