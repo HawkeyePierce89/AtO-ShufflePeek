@@ -216,8 +216,8 @@ This plan lands four changes on one branch and in one PR:
 
 ### Task 8: Final documentation check
 
-- [ ] Re-read README.md and CLAUDE.md against the final csproj, workflows and script. The build, release and configuration text must match the implementation.
-- [ ] Move this plan to `docs/plans/completed/`.
+- [x] Re-read README.md and CLAUDE.md against the final csproj, workflows and script. The build, release and configuration text must match the implementation.
+- [x] Move this plan to `docs/plans/completed/`.
 
 ## Post-Completion (manual, owner)
 
