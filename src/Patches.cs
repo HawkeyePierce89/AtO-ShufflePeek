@@ -19,6 +19,7 @@ namespace AtOShufflePeek
         {
             var enableCardsPostfix = new HarmonyMethod(AccessTools.Method(typeof(Patches), nameof(EnableCardsPostfix)));
             var finishSelectionPostfix = new HarmonyMethod(AccessTools.Method(typeof(Patches), nameof(FinishSelectionPostfix)));
+            var preFinishGamePostfix = new HarmonyMethod(AccessTools.Method(typeof(Patches), nameof(PreFinishGamePostfix)));
             int applied = 0;
 
             foreach (string typeName in ManagerTypeNames)
@@ -38,7 +39,12 @@ namespace AtOShufflePeek
                     CardsFields[type] = cardsField;
                     FieldInfo selectedField = AccessTools.Field(type, "cardsSelectedList");
                     if (selectedField != null)
+                    {
                         SelectedFields[type] = selectedField;
+                        // When the rounds run out the pairs game reveals every remaining card without adding it to cardsSelectedList.
+                        if (TryPatch(harmony, type, "PreFinishGame", preFinishGamePostfix))
+                            applied++;
+                    }
                     if (TryPatch(harmony, type, "EnableCards", enableCardsPostfix))
                         applied++;
                 }
@@ -93,7 +99,7 @@ namespace AtOShufflePeek
                     if (card == null)
                         continue;
                     Vector3 position = card.transform.position;
-                    slots.Add(ReadSlot(card, position.x, position.y, i, faceUp));
+                    slots.Add(ReadSlot(card, position.x, position.y, i, faceUp, allFaceUp: false));
                 }
 
                 CardLayout layout = CardLayout.Build(slots);
@@ -114,8 +120,9 @@ namespace AtOShufflePeek
         /// Reads the card at <paramref name="index"/> into a slot at the given position. The game's own
         /// cardrevealed flag is set on every card during the shuffle and never cleared, so face-up state
         /// comes from the pairs game's selected list instead; the single-pick game has none.
+        /// <paramref name="allFaceUp"/> is set once the pairs game has revealed every card at its end.
         /// </summary>
-        internal static CardSlot ReadSlot(CardItem card, float x, float y, int index, ICollection<int> faceUp)
+        internal static CardSlot ReadSlot(CardItem card, float x, float y, int index, ICollection<int> faceUp, bool allFaceUp)
         {
             var data = card.GetCardData();
             return new CardSlot(
@@ -123,9 +130,22 @@ namespace AtOShufflePeek
                 y,
                 data != null ? data.CardName : null,
                 data != null ? (int)data.CardType : 0,
-                faceUp != null && faceUp.Contains(index),
+                allFaceUp || (faceUp != null && faceUp.Contains(index)),
                 index,
                 card.gameObject.name);
+        }
+
+        private static void PreFinishGamePostfix(object __instance)
+        {
+            try
+            {
+                if (Plugin.Overlay != null)
+                    Plugin.Overlay.RevealAll(__instance as MonoBehaviour);
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.LogError($"PreFinishGame postfix failed: {e}");
+            }
         }
 
         private static void FinishSelectionPostfix()

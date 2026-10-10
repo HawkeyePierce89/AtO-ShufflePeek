@@ -14,6 +14,7 @@ namespace AtOShufflePeek
         private MonoBehaviour manager;
         private IList<CardItem> cards;
         private ICollection<int> faceUp;
+        private bool allFaceUp;
         private bool? useUnicodeMarkers;
         private bool errorLogged;
 
@@ -29,6 +30,8 @@ namespace AtOShufflePeek
             this.manager = manager;
             this.cards = cards;
             this.faceUp = faceUp;
+            allFaceUp = false;
+            errorLogged = false;
             this.layout = layout != null && !layout.IsEmpty ? layout : null;
             Visible = this.layout != null;
         }
@@ -40,6 +43,14 @@ namespace AtOShufflePeek
             manager = null;
             cards = null;
             faceUp = null;
+            allFaceUp = false;
+        }
+
+        /// <summary>Marks every card face up once the given manager has revealed them all at the end of its game.</summary>
+        public void RevealAll(MonoBehaviour manager)
+        {
+            if (layout != null && manager != null && manager == this.manager)
+                allFaceUp = true;
         }
 
         private void Update()
@@ -143,7 +154,7 @@ namespace AtOShufflePeek
         private CardSlot Reread(CardSlot slot)
         {
             CardItem card = cards[slot.SourceIndex];
-            return card != null ? Patches.ReadSlot(card, slot.X, slot.Y, slot.SourceIndex, faceUp) : slot;
+            return card != null ? Patches.ReadSlot(card, slot.X, slot.Y, slot.SourceIndex, faceUp, allFaceUp) : slot;
         }
 
         private void Fail(string where, Exception e)

@@ -7,7 +7,7 @@ A read-only BepInEx 5 plugin for Across the Obelisk (v1.7.7.1, Unity 2022.3, Mon
 The plugin hooks the end of the shuffle in both face-down card minigames:
 
 - Single-pick minigame (`CardPlayerManager`): the overlay shows one line that lists the cards in their real left-to-right order on screen.
-- Pairs minigame (`CardPlayerPairsManager`): the overlay shows one line per row, top to bottom, with positions numbered 1..N from the top-left. Cards that are face up (picked or matched) are drawn in grey. After a missed pair the game swaps the two cards with other face-down cards, and the overlay follows those swaps.
+- Pairs minigame (`CardPlayerPairsManager`): the overlay shows one line per row, top to bottom, with positions numbered 1..N from the top-left. Cards that are face up (picked, matched, or revealed when the rounds run out) are drawn in grey. After a missed pair the game swaps the two cards with other face-down cards, and the overlay follows those swaps.
 
 In both minigames:
 
@@ -68,7 +68,7 @@ dotnet test tests/AtO-ShufflePeek.Tests
 
 1. Install BepInEx 5 for Across the Obelisk.
 2. Copy `AtO-ShufflePeek.dll` into `<game folder>/BepInEx/plugins`. The build does not copy it for you.
-3. Start the game. The BepInEx log should show the plugin loading, four applied patches and the chosen marker set.
+3. Start the game. The BepInEx log should show the plugin loading and five applied patches. The chosen marker set is logged the first time the overlay is drawn.
 
 ## Configuration
 
