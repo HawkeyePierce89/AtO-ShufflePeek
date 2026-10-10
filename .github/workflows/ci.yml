@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: |
+          dotnet restore AtO-ShufflePeek.csproj
+          dotnet restore tests/AtO-ShufflePeek.Tests
+
+      - name: Build
+        run: dotnet build AtO-ShufflePeek.csproj -c Release --no-restore -warnaserror
+
+      - name: Test
+        run: dotnet test tests/AtO-ShufflePeek.Tests -c Release --no-restore
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: AtO-ShufflePeek
+          path: bin/Release/netstandard2.1/AtO-ShufflePeek.dll

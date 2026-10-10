@@ -151,7 +151,7 @@ This plan lands four changes on one branch and in one PR:
 - Create: `.github/workflows/ci.yml`
 - Create: `.github/workflows/release.yml`
 
-- [ ] `ci.yml`:
+- [x] `ci.yml`:
   - Name: `CI`.
   - Triggers: `on: push: branches: [master]` and `pull_request`.
   - Permissions: top-level `permissions: contents: read`.
@@ -162,7 +162,7 @@ This plan lands four changes on one branch and in one PR:
     4. `dotnet build AtO-ShufflePeek.csproj -c Release --no-restore -warnaserror`
     5. `dotnet test tests/AtO-ShufflePeek.Tests -c Release --no-restore`
     6. `actions/upload-artifact@v7`, artifact name `AtO-ShufflePeek`, path `bin/Release/netstandard2.1/AtO-ShufflePeek.dll`
-- [ ] `release.yml`:
+- [x] `release.yml`:
   - Triggers: `on: push: tags: ['v*']`.
   - Permissions: top-level `permissions: contents: read`, and `contents: write` only on the release job.
   - Job on `ubuntu-latest` with these steps:
@@ -171,8 +171,8 @@ This plan lands four changes on one branch and in one PR:
     3. The same restore, build (`-warnaserror`) and test steps as `ci.yml`.
     4. Stage the DLL, `README.md` and `LICENSE`, and build `AtO-ShufflePeek-v${{ steps.version.outputs.version }}.zip` with `zip -j`.
     5. Run `gh release create "$GITHUB_REF_NAME" --generate-notes bin/Release/netstandard2.1/AtO-ShufflePeek.dll AtO-ShufflePeek-v<version>.zip` with `GH_TOKEN: ${{ github.token }}`.
-- [ ] Confirm that no CI logic lives outside `.github/workflows/` apart from `scripts/check-version.ps1`, and that neither workflow references a Windows path or a game directory.
-- [ ] Locally, run the exact CI command sequence from `ci.yml` (restore, `build -warnaserror`, test). It must pass. If `actionlint` is available, validate both YAML files with it; otherwise, if Python is present, parse them with `python -c "import yaml"`, since `pwsh` has no built-in `ConvertFrom-Yaml`. This is a syntax sanity check only.
+- [x] Confirm that no CI logic lives outside `.github/workflows/` apart from `scripts/check-version.ps1`, and that neither workflow references a Windows path or a game directory.
+- [x] Locally, run the exact CI command sequence from `ci.yml` (restore, `build -warnaserror`, test). It must pass. If `actionlint` is available, validate both YAML files with it; otherwise, if Python is present, parse them with `python -c "import yaml"`, since `pwsh` has no built-in `ConvertFrom-Yaml`. This is a syntax sanity check only.
 
 ### Task 6: Update README.md and CLAUDE.md
 
