@@ -202,17 +202,17 @@ This plan lands four changes on one branch and in one PR:
 
 ### Task 7: Verify acceptance criteria
 
-- [ ] First delete `bin/` and `obj/` of both projects (the root project and `tests/AtO-ShufflePeek.Tests`). Then:
+- [x] First delete `bin/` and `obj/` of both projects (the root project and `tests/AtO-ShufflePeek.Tests`). Then:
   - `env -u AtOGameDir -u BepInExDir dotnet build -c Release -warnaserror` must report zero warnings;
   - `dotnet test tests/AtO-ShufflePeek.Tests` must pass 32 tests.
-- [ ] Check that the output directory listing is only `AtO-ShufflePeek.dll` and `AtO-ShufflePeek.pdb`.
-- [ ] Re-run the metadata inspection from Task 3:
+- [x] Check that the output directory listing is only `AtO-ShufflePeek.dll` and `AtO-ShufflePeek.pdb`.
+- [x] Re-run the metadata inspection from Task 3:
   - references: no `Assembly-CSharp`; `UnityEngine.CoreModule`, `BepInEx` and `0Harmony` present;
   - `BepInPlugin` arguments: GUID `hawkeyepierce89.ato.shufflepeek`, name `ShufflePeek`, version `1.0.0`;
   - assembly version `1.0.0.0`.
-- [ ] Re-run the version-check dry run. `v9.9.9` must be rejected and `v1.0.0` accepted.
-- [ ] Re-run the `karmanov` grep with the ticket's exclusions (`LICENSE`, `.git`, `bin`, `obj`, `docs/plans/completed`). It must be empty.
-- [ ] Confirm that the version string `1.0.0` is hand-written only in `AtO-ShufflePeek.csproj`.
+- [x] Re-run the version-check dry run. `v9.9.9` must be rejected and `v1.0.0` accepted.
+- [x] Re-run the `karmanov` grep with the ticket's exclusions (`LICENSE`, `.git`, `bin`, `obj`, `docs/plans/completed`). It must be empty. (only hits are in this active plan file, which moves to completed in Task 8)
+- [x] Confirm that the version string `1.0.0` is hand-written only in `AtO-ShufflePeek.csproj`. (README mentions `v1.0.0` only as an example tag in prose)
 
 ### Task 8: Final documentation check
 
