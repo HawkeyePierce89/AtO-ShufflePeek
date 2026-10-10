@@ -34,7 +34,7 @@ namespace AtOShufflePeek
         public int CardType { get; }
         public bool Revealed { get; }
 
-        /// <summary>Index into the manager's cards list, used to refresh the revealed state every frame.</summary>
+        /// <summary>Index into the manager's cards list. Each index keeps its screen position, so the card shown there is re-read from it.</summary>
         public int SourceIndex { get; }
 
         public string FallbackName { get; }
@@ -97,6 +97,23 @@ namespace AtOShufflePeek
             return new CardLayout(ordered);
         }
 
+        /// <summary>
+        /// Same positions and numbers, with every entry re-read through <paramref name="reread"/>. The pairs game
+        /// swaps cards between positions after a miss, so the card at a position can change after capture.
+        /// </summary>
+        public CardLayout Refresh(Func<CardSlot, CardSlot> reread)
+        {
+            var rows = new List<IReadOnlyList<CardSlot>>(Rows.Count);
+            foreach (var row in Rows)
+                rows.Add(row.Select(old =>
+                {
+                    var fresh = reread(old) ?? old;
+                    fresh.Number = old.Number;
+                    return fresh;
+                }).ToList());
+            return new CardLayout(rows);
+        }
+
         public static CardKind Classify(int cardType)
         {
             switch (cardType)
@@ -126,8 +143,6 @@ namespace AtOShufflePeek
 
         public static string FormatRow(IEnumerable<CardSlot> row, bool useUnicodeMarkers)
         {
-            if (row == null)
-                return string.Empty;
             return string.Join(Separator, row.Select(s => FormatEntry(s, useUnicodeMarkers)));
         }
 
@@ -149,19 +164,11 @@ namespace AtOShufflePeek
             }
         }
 
-        /// <summary>
-        /// IMGUI rich-text row. <paramref name="isRevealed"/> maps a slot to its live revealed state;
-        /// when null the captured <see cref="CardSlot.Revealed"/> is used.
-        /// </summary>
-        public static string FormatRichRow(IEnumerable<CardSlot> row, bool useUnicodeMarkers, Func<CardSlot, bool> isRevealed = null)
+        /// <summary>IMGUI rich-text row, one colour tag per entry.</summary>
+        public static string FormatRichRow(IEnumerable<CardSlot> row, bool useUnicodeMarkers)
         {
-            if (row == null)
-                return string.Empty;
             return string.Join(Separator, row.Select(s =>
-            {
-                bool revealed = isRevealed != null ? isRevealed(s) : s.Revealed;
-                return "<color=" + ColorFor(s.Kind, revealed) + ">" + FormatEntry(s, useUnicodeMarkers) + "</color>";
-            }));
+                "<color=" + ColorFor(s.Kind, s.Revealed) + ">" + FormatEntry(s, useUnicodeMarkers) + "</color>"));
         }
     }
 }

@@ -7,7 +7,7 @@ A read-only BepInEx 5 plugin for Across the Obelisk (v1.7.7.1, Unity 2022.3, Mon
 The plugin hooks the end of the shuffle in both face-down card minigames:
 
 - Single-pick minigame (`CardPlayerManager`): the overlay shows one line that lists the cards in their real left-to-right order on screen.
-- Pairs minigame (`CardPlayerPairsManager`): the overlay shows one line per row, top to bottom, with positions numbered 1..N from the top-left. Cards that are already face up are drawn in grey, and the colour updates live while you flip them.
+- Pairs minigame (`CardPlayerPairsManager`): the overlay shows one line per row, top to bottom, with positions numbered 1..N from the top-left. Cards that are face up (picked or matched) are drawn in grey. After a missed pair the game swaps the two cards with other face-down cards, and the overlay follows those swaps.
 
 In both minigames:
 
@@ -15,7 +15,7 @@ In both minigames:
 - Boons are drawn in green with `✓`.
 - All other cards are drawn in white.
 
-The overlay disappears when the selection finishes or the scene changes. While a layout is captured, the hotkey (F8 by default) toggles it. The layout rows are also written to the BepInEx log in plain ASCII.
+The overlay disappears when the selection finishes or the scene changes. While a layout is captured, the hotkey (F8 by default) toggles it. The layout rows captured after the shuffle are also written to the BepInEx log, always with the ASCII markers `+` and `x`.
 
 ### Marker fallback
 
@@ -23,7 +23,7 @@ The first time the overlay is drawn, the plugin checks whether the active IMGUI 
 
 ## Multiplayer safety
 
-- The plugin is strictly read-only. It reads card positions, card data and the revealed flag, but never writes game state and never calls `UnityEngine.Random`, so it cannot desync a session.
+- The plugin is strictly read-only. It reads card positions, card data and the pairs game's list of face-up cards, but never writes game state and never calls `UnityEngine.Random`, so it cannot desync a session.
 - Every peer replays the same deterministic shuffle, so a client's overlay matches what the host sees. No network traffic is involved.
 
 ## Building

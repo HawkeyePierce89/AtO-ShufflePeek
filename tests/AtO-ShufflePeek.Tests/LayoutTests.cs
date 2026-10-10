@@ -87,6 +87,25 @@ namespace AtOShufflePeek.Tests
             Assert.Equal("Low", layout.Rows[1][0].Name);
         }
 
+        [Fact]
+        public void YGapEqualToTolerance_StaysInOneRow()
+        {
+            var layout = CardLayout.Build(new[] { Slot(0f, 0f, "Low"), Slot(1f, 0.5f, "High") }, rowTolerance: 0.5f);
+
+            Assert.Single(layout.Rows);
+        }
+
+        [Fact]
+        public void SlowDrift_IsMeasuredFromFirstCardOfRow()
+        {
+            // neighbouring gaps are 0.3, but the third card is 0.6 below the row's first card
+            var layout = CardLayout.Build(new[] { Slot(0f, 1f, "A"), Slot(1f, 0.7f, "B"), Slot(2f, 0.4f, "C") }, rowTolerance: 0.5f);
+
+            Assert.Equal(2, layout.Rows.Count);
+            Assert.Equal(new[] { "A", "B" }, layout.Rows[0].Select(s => s.Name));
+            Assert.Equal("C", layout.Rows[1][0].Name);
+        }
+
         [Theory]
         [InlineData(18, CardKind.Injury)]
         [InlineData(21, CardKind.Boon)]
@@ -146,12 +165,6 @@ namespace AtOShufflePeek.Tests
         }
 
         [Fact]
-        public void FormatRow_NullRow_IsEmpty()
-        {
-            Assert.Equal(string.Empty, CardLayout.FormatRow(null, true));
-        }
-
-        [Fact]
         public void FallbackName_UsedWhenNameMissing()
         {
             var layout = CardLayout.Build(new[]
@@ -208,7 +221,7 @@ namespace AtOShufflePeek.Tests
         }
 
         [Fact]
-        public void FormatRichRow_UsesLiveRevealedState()
+        public void FormatRichRow_RevealedEntryIsGrey()
         {
             var layout = CardLayout.Build(new[]
             {
@@ -219,10 +232,43 @@ namespace AtOShufflePeek.Tests
             Assert.Equal(
                 "<color=#FF5252>1 Wound x</color> · <color=#9E9E9E>2 Strike</color>",
                 CardLayout.FormatRichRow(layout.Rows[0], false));
+        }
+
+        [Fact]
+        public void Refresh_ReplacesEntriesButKeepsPositionsAndNumbers()
+        {
+            // index 0 sits on the right, index 1 on the left; after a swap index 1 holds the Wound
+            var layout = CardLayout.Build(new[]
+            {
+                Slot(2f, 0f, "Wound", 18, index: 0),
+                Slot(0f, 0f, "Strike", index: 1),
+            });
+            var live = new Dictionary<int, (string name, int type, bool revealed)>
+            {
+                [0] = ("Strike", 0, true),
+                [1] = ("Wound", 18, false),
+            };
+
+            var refreshed = layout.Refresh(s =>
+                new CardSlot(s.X, s.Y, live[s.SourceIndex].name, live[s.SourceIndex].type, live[s.SourceIndex].revealed, s.SourceIndex));
+
+            Assert.Equal(new[] { 1, 0 }, refreshed.Rows[0].Select(s => s.SourceIndex));
+            Assert.Equal(new[] { 1, 2 }, refreshed.Rows[0].Select(s => s.Number));
             Assert.Equal(
-                "<color=#9E9E9E>1 Wound x</color> · <color=#FFFFFF>2 Strike</color>",
-                CardLayout.FormatRichRow(layout.Rows[0], false, s => s.SourceIndex == 0));
-            Assert.Equal(string.Empty, CardLayout.FormatRichRow(null, false));
+                "<color=#FF5252>1 Wound x</color> · <color=#9E9E9E>2 Strike</color>",
+                CardLayout.FormatRichRow(refreshed.Rows[0], false));
+            Assert.Equal("1 Strike · 2 Wound x", CardLayout.FormatRow(layout.Rows[0], false));
+        }
+
+        [Fact]
+        public void Refresh_NullResultKeepsPreviousEntry()
+        {
+            var layout = CardLayout.Build(new[] { Slot(0f, 0f, "Strike", index: 3) });
+
+            var refreshed = layout.Refresh(s => null);
+
+            Assert.Same(layout.Rows[0][0], refreshed.Rows[0][0]);
+            Assert.Equal(1, refreshed.Rows[0][0].Number);
         }
 
         [Fact]

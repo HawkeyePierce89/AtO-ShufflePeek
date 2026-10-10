@@ -12,8 +12,8 @@ namespace AtOShufflePeek
 
         private CardLayout layout;
         private MonoBehaviour manager;
-        private bool hasManager;
         private IList<CardItem> cards;
+        private ICollection<int> faceUp;
         private bool? useUnicodeMarkers;
         private bool errorLogged;
 
@@ -22,13 +22,15 @@ namespace AtOShufflePeek
 
         public bool Visible { get; private set; }
 
-        public void Show(MonoBehaviour manager, IList<CardItem> cards, CardLayout layout)
+        /// <param name="cards">The manager's live cards list; each layout slot re-reads its index every frame.</param>
+        /// <param name="faceUp">The pairs game's live list of face-up indices, or null.</param>
+        public void Show(MonoBehaviour manager, IList<CardItem> cards, ICollection<int> faceUp, CardLayout layout)
         {
             this.manager = manager;
-            hasManager = manager != null;
             this.cards = cards;
-            this.layout = layout;
-            Visible = layout != null && !layout.IsEmpty;
+            this.faceUp = faceUp;
+            this.layout = layout != null && !layout.IsEmpty ? layout : null;
+            Visible = this.layout != null;
         }
 
         public void Hide()
@@ -36,8 +38,8 @@ namespace AtOShufflePeek
             Visible = false;
             layout = null;
             manager = null;
-            hasManager = false;
             cards = null;
+            faceUp = null;
         }
 
         private void Update()
@@ -45,14 +47,18 @@ namespace AtOShufflePeek
             try
             {
                 // Unity's overloaded == reports destroyed objects as null.
-                if (hasManager && manager == null)
+                if (layout == null)
+                    return;
+                if (manager == null)
                 {
                     Hide();
                     return;
                 }
 
-                if (layout != null && Plugin.ToggleKey.Value.IsDown())
+                if (Plugin.ToggleKey.Value.IsDown())
                     Visible = !Visible;
+                if (Visible)
+                    layout = layout.Refresh(Reread);
             }
             catch (Exception e)
             {
@@ -82,7 +88,7 @@ namespace AtOShufflePeek
                 float height = 0f;
                 foreach (var row in layout.Rows)
                 {
-                    string line = CardLayout.FormatRichRow(row, unicode, IsRevealed);
+                    string line = CardLayout.FormatRichRow(row, unicode);
                     Vector2 size = style.CalcSize(new GUIContent(line));
                     lines.Add(line);
                     sizes.Add(size);
@@ -133,14 +139,11 @@ namespace AtOShufflePeek
             return supported;
         }
 
-        private bool IsRevealed(CardSlot slot)
+        // While a swap is in flight the same card can briefly sit at two indices; it settles when the move ends.
+        private CardSlot Reread(CardSlot slot)
         {
-            var list = cards;
-            int index = slot.SourceIndex;
-            if (list == null || index < 0 || index >= list.Count)
-                return slot.Revealed;
-            CardItem card = list[index];
-            return card != null ? card.cardrevealed : slot.Revealed;
+            CardItem card = cards[slot.SourceIndex];
+            return card != null ? Patches.ReadSlot(card, slot.X, slot.Y, slot.SourceIndex, faceUp) : slot;
         }
 
         private void Fail(string where, Exception e)

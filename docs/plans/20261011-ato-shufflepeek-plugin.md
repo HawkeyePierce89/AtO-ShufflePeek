@@ -157,7 +157,7 @@ The plugin never changes game state, so multiplayer sync is unaffected.
 - [x] One shared `EnableCardsPostfix(object __instance)` serves both managers:
   - Look up the `FieldInfo` for `__instance.GetType()` in the dictionary and read the list as `IEnumerable`.
   - Cast each element to `CardItem` and read data through the strongly typed API: `GetCardData()` (`CardName`, `(int)CardType`), falling back to `gameObject.name` when the data is null. Also read `transform.position.x/y` and `cardrevealed`.
-  - Build the `CardLayout` and log each row at Info with `FormatRow(row, useUnicodeMarkers: false)`, so log lines are always ASCII.
+  - Build the `CardLayout` and log each row at Info with `FormatRow(row, useUnicodeMarkers: false)`, so log markers are always ASCII.
   - Call `Overlay.Show(__instance as MonoBehaviour, cards, layout)`.
   - The body is wrapped in a try/catch, and the postfix only reads.
 - [x] One shared `FinishSelectionPostfix()` calls `Overlay.Hide()` inside a try/catch.
@@ -189,5 +189,5 @@ The plugin never changes game state, so multiplayer sync is unaffected.
 - Single-pick minigame: after the shuffle, the overlay shows one line in true left-to-right order with the correct red ✗ / green ✓ markers (or `x` / `+`, with no tofu boxes). The picked card matches the overlay.
 - Pairs minigame: the three rows, top to bottom, match the screen. Flipped cards confirm their positions, and face-up cards turn grey.
 - The overlay disappears on finish and on scene change, and F8 toggles it.
-- Editing the position or font size in the config file applies live.
+- Changing the position or font size in-game (for example through ConfigurationManager) applies live. Edits to the `.cfg` file apply on the next launch.
 - Multiplayer as a client: the overlay matches what the host reveals.

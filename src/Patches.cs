@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
@@ -12,6 +11,9 @@ namespace AtOShufflePeek
         private static readonly string[] ManagerTypeNames = { "CardPlayerManager", "CardPlayerPairsManager" };
 
         private static readonly Dictionary<Type, FieldInfo> CardsFields = new Dictionary<Type, FieldInfo>();
+
+        // Pairs game only: indices into cards that are face up (picked or matched).
+        private static readonly Dictionary<Type, FieldInfo> SelectedFields = new Dictionary<Type, FieldInfo>();
 
         public static void Apply(Harmony harmony)
         {
@@ -34,6 +36,9 @@ namespace AtOShufflePeek
                 else
                 {
                     CardsFields[type] = cardsField;
+                    FieldInfo selectedField = AccessTools.Field(type, "cardsSelectedList");
+                    if (selectedField != null)
+                        SelectedFields[type] = selectedField;
                     if (TryPatch(harmony, type, "EnableCards", enableCardsPostfix))
                         applied++;
                 }
@@ -71,46 +76,56 @@ namespace AtOShufflePeek
         {
             try
             {
-                if (__instance == null || !CardsFields.TryGetValue(__instance.GetType(), out FieldInfo cardsField))
+                Type type = __instance?.GetType();
+                if (type == null || !CardsFields.TryGetValue(type, out FieldInfo cardsField))
                     return;
-                if (!(cardsField.GetValue(__instance) is IEnumerable source))
+                // Keep the manager's live lists: the pairs game swaps cards between indices after a miss.
+                if (!(cardsField.GetValue(__instance) is IList<CardItem> cards))
                     return;
+                ICollection<int> faceUp = SelectedFields.TryGetValue(type, out FieldInfo selectedField)
+                    ? selectedField.GetValue(__instance) as ICollection<int>
+                    : null;
 
-                var cards = new List<CardItem>();
                 var slots = new List<CardSlot>();
-                foreach (object element in source)
+                for (int i = 0; i < cards.Count; i++)
                 {
-                    var card = element as CardItem;
-                    int index = cards.Count;
-                    cards.Add(card);
+                    CardItem card = cards[i];
                     if (card == null)
                         continue;
-
-                    var data = card.GetCardData();
                     Vector3 position = card.transform.position;
-                    slots.Add(new CardSlot(
-                        position.x,
-                        position.y,
-                        data != null ? data.CardName : null,
-                        data != null ? (int)data.CardType : 0,
-                        card.cardrevealed,
-                        index,
-                        card.gameObject.name));
+                    slots.Add(ReadSlot(card, position.x, position.y, i, faceUp));
                 }
 
                 CardLayout layout = CardLayout.Build(slots);
-                string managerName = __instance.GetType().Name;
-                Plugin.Log.LogInfo($"{managerName}: {layout.Count} cards in {layout.Rows.Count} row(s)");
+                Plugin.Log.LogInfo($"{type.Name}: {layout.Count} cards in {layout.Rows.Count} row(s)");
                 foreach (var row in layout.Rows)
                     Plugin.Log.LogInfo("  " + CardLayout.FormatRow(row, useUnicodeMarkers: false));
 
                 if (Plugin.Overlay != null)
-                    Plugin.Overlay.Show(__instance as MonoBehaviour, cards, layout);
+                    Plugin.Overlay.Show(__instance as MonoBehaviour, cards, faceUp, layout);
             }
             catch (Exception e)
             {
                 Plugin.Log.LogError($"EnableCards postfix failed: {e}");
             }
+        }
+
+        /// <summary>
+        /// Reads the card at <paramref name="index"/> into a slot at the given position. The game's own
+        /// cardrevealed flag is set on every card during the shuffle and never cleared, so face-up state
+        /// comes from the pairs game's selected list instead; the single-pick game has none.
+        /// </summary>
+        internal static CardSlot ReadSlot(CardItem card, float x, float y, int index, ICollection<int> faceUp)
+        {
+            var data = card.GetCardData();
+            return new CardSlot(
+                x,
+                y,
+                data != null ? data.CardName : null,
+                data != null ? (int)data.CardType : 0,
+                faceUp != null && faceUp.Contains(index),
+                index,
+                card.gameObject.name);
         }
 
         private static void FinishSelectionPostfix()
