@@ -56,18 +56,18 @@ The plugin never changes game state, so multiplayer sync is unaffected.
 - Create: `.gitignore`
 - Create: `src/Plugin.cs` (minimal stub)
 
-- [ ] `Directory.Build.props`: define `AtOGameDir` (default `D:\SteamLibrary\steamapps\common\Across the Obelisk`) and `BepInExDir` (default `C:\git\_deps\BepInExPack_AcrossTheObelisk\BepInEx\core`). Guard each with `Condition="'$(X)' == ''"` so it can be overridden.
-- [ ] `AtO-ShufflePeek.csproj`:
-  - target netstandard2.0
+- [x] `Directory.Build.props`: define `AtOGameDir` (default `D:\SteamLibrary\steamapps\common\Across the Obelisk`) and `BepInExDir` (default `C:\git\_deps\BepInExPack_AcrossTheObelisk\BepInEx\core`). Guard each with `Condition="'$(X)' == ''"` so it can be overridden.
+- [x] `AtO-ShufflePeek.csproj`:
+  - target netstandard2.1 (changed from netstandard2.0: Unity 2022 CoreModule references netstandard 2.1, CS1705 otherwise)
   - AssemblyName `AtO-ShufflePeek` and RootNamespace `AtOShufflePeek`
   - `LangVersion` latest
   - HintPath references to the 7 DLLs, all with `Private=false`
   - `Compile Remove="tests/**"`
   - no post-build copy step
-- [ ] `.gitignore`: `bin/`, `obj/`, `.vs/`, `*.user`.
-- [ ] `src/Plugin.cs`: class `Plugin : BaseUnityPlugin` with `[BepInPlugin("karmanov.ato.shufflepeek", "ShufflePeek", "1.0.0")]`. It logs the load in `Awake`.
-- [ ] Run `dotnet build -c Release`. Confirm it produces `bin/Release/netstandard2.0/AtO-ShufflePeek.dll` with no MSB3245 or other missing-reference warnings, and that the output folder contains no game or BepInEx DLLs.
-- [ ] Tests: none yet. The test project arrives in Task 2 with the first testable code; the warning-free build is this task's gate.
+- [x] `.gitignore`: `bin/`, `obj/`, `.vs/`, `*.user`.
+- [x] `src/Plugin.cs`: class `Plugin : BaseUnityPlugin` with `[BepInPlugin("karmanov.ato.shufflepeek", "ShufflePeek", "1.0.0")]`. It logs the load in `Awake`.
+- [x] Run `dotnet build -c Release`. Confirm it produces `bin/Release/netstandard2.1/AtO-ShufflePeek.dll` with no MSB3245 or other missing-reference warnings, and that the output folder contains no game or BepInEx DLLs.
+- [x] Tests: none yet. The test project arrives in Task 2 with the first testable code; the warning-free build is this task's gate.
 
 ### Task 2: Layout model and unit tests
 
@@ -167,7 +167,7 @@ The plugin never changes game state, so multiplayer sync is unaffected.
 
 ### Task 6: Verify acceptance criteria
 
-- [ ] Delete `bin/` and `obj/`, then run `dotnet build -c Release`. Expect zero warnings, and `bin/Release/netstandard2.0/AtO-ShufflePeek.dll` present with no game or BepInEx DLLs next to it.
+- [ ] Delete `bin/` and `obj/`, then run `dotnet build -c Release`. Expect zero warnings, and `bin/Release/netstandard2.1/AtO-ShufflePeek.dll` present with no game or BepInEx DLLs next to it.
 - [ ] Run `dotnet test tests/AtO-ShufflePeek.Tests`: all tests pass, and `Layout.cs` is fully covered by tests.
 - [ ] Check `git status` / `git ls-files`: no DLLs, `bin/` or `obj/` are tracked.
 - [ ] Confirm the build has no copy-to-game-folder target.
