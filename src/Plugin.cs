@@ -24,27 +24,34 @@ namespace AtOShufflePeek
         {
             Log = Logger;
 
-            Enabled = Config.Bind("General", "Enabled", true,
-                "Show the card layout overlay after the shuffle.");
-            PositionX = Config.Bind("Overlay", "PositionX", 20,
-                "Overlay left edge in screen pixels.");
-            PositionY = Config.Bind("Overlay", "PositionY", 20,
-                "Overlay top edge in screen pixels.");
-            FontSize = Config.Bind("Overlay", "FontSize", 18,
-                new ConfigDescription("Overlay font size.", new AcceptableValueRange<int>(10, 48)));
-            ToggleKey = Config.Bind("Hotkey", "Toggle", new KeyboardShortcut(KeyCode.F8),
-                "Toggle the overlay while a layout is captured.");
+            try
+            {
+                Enabled = Config.Bind("General", "Enabled", true,
+                    "Show the card layout overlay after the shuffle.");
+                PositionX = Config.Bind("Overlay", "PositionX", 20,
+                    "Overlay left edge in screen pixels.");
+                PositionY = Config.Bind("Overlay", "PositionY", 20,
+                    "Overlay top edge in screen pixels.");
+                FontSize = Config.Bind("Overlay", "FontSize", 18,
+                    new ConfigDescription("Overlay font size.", new AcceptableValueRange<int>(10, 48)));
+                ToggleKey = Config.Bind("Hotkey", "Toggle", new KeyboardShortcut(KeyCode.F8),
+                    "Toggle the overlay while a layout is captured.");
 
-            var host = new GameObject("ShufflePeek");
-            DontDestroyOnLoad(host);
-            host.hideFlags = HideFlags.HideAndDontSave;
-            Overlay = host.AddComponent<OverlayBehaviour>();
+                var host = new GameObject("ShufflePeek");
+                DontDestroyOnLoad(host);
+                host.hideFlags = HideFlags.HideAndDontSave;
+                Overlay = host.AddComponent<OverlayBehaviour>();
 
-            SceneManager.activeSceneChanged += OnActiveSceneChanged;
+                SceneManager.activeSceneChanged += OnActiveSceneChanged;
 
-            Patches.Apply(new Harmony("karmanov.ato.shufflepeek"));
+                Patches.Apply(new Harmony("karmanov.ato.shufflepeek"));
 
-            Log.LogInfo("ShufflePeek 1.0.0 loaded");
+                Log.LogInfo("ShufflePeek 1.0.0 loaded");
+            }
+            catch (System.Exception e)
+            {
+                Log.LogError($"ShufflePeek failed to initialise: {e}");
+            }
         }
 
         private static void OnActiveSceneChanged(Scene from, Scene to)
