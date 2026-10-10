@@ -167,10 +167,10 @@ The plugin never changes game state, so multiplayer sync is unaffected.
 
 ### Task 6: Verify acceptance criteria
 
-- [ ] Delete `bin/` and `obj/`, then run `dotnet build -c Release`. Expect zero warnings, and `bin/Release/netstandard2.1/AtO-ShufflePeek.dll` present with no game or BepInEx DLLs next to it.
-- [ ] Run `dotnet test tests/AtO-ShufflePeek.Tests`: all tests pass, and `Layout.cs` is fully covered by tests.
-- [ ] Check `git status` / `git ls-files`: no DLLs, `bin/` or `obj/` are tracked.
-- [ ] Confirm the build has no copy-to-game-folder target.
+- [x] Delete `bin/` and `obj/`, then run `dotnet build -c Release`. Expect zero warnings, and `bin/Release/netstandard2.1/AtO-ShufflePeek.dll` present with no game or BepInEx DLLs next to it.
+- [x] Run `dotnet test tests/AtO-ShufflePeek.Tests`: all tests pass, and `Layout.cs` is fully covered by tests. (29/29 pass; Microsoft Code Coverage reports line-rate 1 and branch-rate 1 for every Layout.cs class)
+- [x] Check `git status` / `git ls-files`: no DLLs, `bin/` or `obj/` are tracked.
+- [x] Confirm the build has no copy-to-game-folder target.
 
 ### Task 7: Update documentation
 
