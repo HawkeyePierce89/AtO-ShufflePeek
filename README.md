@@ -1,5 +1,7 @@
 # AtO-ShufflePeek
 
+[![CI](https://github.com/HawkeyePierce89/AtO-ShufflePeek/actions/workflows/ci.yml/badge.svg)](https://github.com/HawkeyePierce89/AtO-ShufflePeek/actions/workflows/ci.yml)
+
 A read-only BepInEx 5 plugin for Across the Obelisk (v1.7.7.1, Unity 2022.3, Mono). After the shuffle animation in a face-down card minigame finishes, it shows where every card ended up.
 
 ## What it does
@@ -28,32 +30,14 @@ The first time the overlay is drawn, the plugin checks whether the active IMGUI 
 
 ## Building
 
-Requirements: .NET SDK (the tests target net10.0), a local install of the game, and a BepInEx 5 pack.
+The only requirement is the .NET SDK 10 (the plugin targets netstandard2.1 and the tests target net10.0).
 
-The game and BepInEx assemblies are referenced by path and are never committed or copied to the output. Two MSBuild properties, set in `Directory.Build.props`, control where they are found:
-
-| Property     | Default                                                      | Used for |
-|--------------|--------------------------------------------------------------|----------|
-| `AtOGameDir` | `D:\SteamLibrary\steamapps\common\Across the Obelisk`        | `AcrossTheObelisk_Data\Managed\*.dll` (Assembly-CSharp and the UnityEngine modules) |
-| `BepInExDir` | `C:\git\_deps\BepInExPack_AcrossTheObelisk\BepInEx\core`     | `BepInEx.dll` and `0Harmony.dll` |
-
-To override them, either pass them on the command line:
-
-```sh
-dotnet build -c Release -p:AtOGameDir="E:\Games\Across the Obelisk" -p:BepInExDir="E:\Games\Across the Obelisk\BepInEx\core"
-```
-
-or set them as environment variables before building:
-
-```sh
-set AtOGameDir=E:\Games\Across the Obelisk
-dotnet build -c Release
-```
+Unity, BepInEx and Harmony reference assemblies come from the BepInEx NuGet feed declared in `nuget.config`, as compile-only package references, so nothing is copied to the output except the plugin DLL and its pdb. The game assembly is not referenced at all: game types are resolved through reflection at runtime. A game install is needed only to run the plugin, not to build it.
 
 Build the plugin:
 
 ```sh
-dotnet build -c Release
+dotnet build -c Release -warnaserror
 ```
 
 This produces `bin/Release/netstandard2.1/AtO-ShufflePeek.dll`.
@@ -64,6 +48,16 @@ Run the unit tests for the layout model. They need no game or Unity assemblies:
 dotnet test tests/AtO-ShufflePeek.Tests
 ```
 
+### Versioning and releases
+
+The plugin version is set in one place, `<Version>` in `AtO-ShufflePeek.csproj`. The GUID and name are set next to it (`PluginGuid`, `PluginName`). The build generates a `PluginInfo` class from these properties, and the assembly version attributes come from the same `Version`.
+
+To publish a release, bump `<Version>`, merge, and push a `v<version>` tag (for example `v1.0.0`). The release workflow checks that the tag matches the csproj version with `scripts/check-version.ps1`, builds and tests, then creates a GitHub Release with the DLL and a zip.
+
+## Releases
+
+Download `AtO-ShufflePeek.dll`, or the `AtO-ShufflePeek-v<version>.zip` that also holds the README and LICENSE, from the [GitHub Releases](https://github.com/HawkeyePierce89/AtO-ShufflePeek/releases) page. Untagged builds are available as the `AtO-ShufflePeek` artifact of each [CI run](https://github.com/HawkeyePierce89/AtO-ShufflePeek/actions/workflows/ci.yml).
+
 ## Installing
 
 1. Install BepInEx 5 for Across the Obelisk.
@@ -72,7 +66,7 @@ dotnet test tests/AtO-ShufflePeek.Tests
 
 ## Configuration
 
-The config file `BepInEx/config/karmanov.ato.shufflepeek.cfg` is created on first launch.
+The config file `BepInEx/config/hawkeyepierce89.ato.shufflepeek.cfg` is created on first launch.
 
 | Section   | Key         | Default | Description |
 |-----------|-------------|---------|-------------|

@@ -180,7 +180,7 @@ This plan lands four changes on one branch and in one PR:
 - Modify: `README.md`
 - Modify: `CLAUDE.md`
 
-- [ ] README:
+- [x] README:
   - Add a CI badge under the title: `[![CI](https://github.com/HawkeyePierce89/AtO-ShufflePeek/actions/workflows/ci.yml/badge.svg)](https://github.com/HawkeyePierce89/AtO-ShufflePeek/actions/workflows/ci.yml)`.
   - Rewrite "Building":
     - The only prerequisite is the .NET SDK (10).
@@ -190,15 +190,15 @@ This plan lands four changes on one branch and in one PR:
   - Add a short "Releases" section: download `AtO-ShufflePeek.dll` (or the zip) from the GitHub Releases page; CI artifacts are available for untagged builds. Leave the manual install steps unchanged.
   - Change the configuration section to `BepInEx/config/hawkeyepierce89.ato.shufflepeek.cfg`.
   - Note that the version lives in `<Version>` in the csproj, and that a release is published by pushing a `v<version>` tag.
-- [ ] CLAUDE.md:
+- [x] CLAUDE.md:
   - Replace the `AtOGameDir`/`BepInExDir` rule with: "Unity and BepInEx assemblies come from the BepInEx NuGet feed (`nuget.config`) as compile-only references; the game assembly is never referenced, all game types (including `CardItem` and its card data) are reached through `AccessTools` at runtime. Nothing is copied to the output except the plugin DLL and pdb."
   - Add a rule that the version, GUID and name are set only in the csproj (`Version`, `PluginGuid`, `PluginName`) and reach code through the generated `PluginInfo` class.
   - Update the Layout section: add `scripts/check-version.ps1`, `.github/workflows/`, `nuget.config` and the reflection-based `Patches`.
   - Update Commands: `dotnet build -c Release -warnaserror`.
-- [ ] Verify:
+- [x] Verify (only matches are in this active plan file, which moves to completed in Task 8):
   - `git grep -n -i karmanov -- . ':!LICENSE' ':!docs/plans/completed'` returns nothing.
   - `git grep -n -e AtOGameDir -e BepInExDir -e Directory.Build.props -- . ':!docs/plans/completed'` returns nothing.
-- [ ] Run `dotnet test tests/AtO-ShufflePeek.Tests`. All 32 tests must pass.
+- [x] Run `dotnet test tests/AtO-ShufflePeek.Tests`. All 32 tests must pass.
 
 ### Task 7: Verify acceptance criteria
 
