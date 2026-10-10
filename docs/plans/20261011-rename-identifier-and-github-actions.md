@@ -78,32 +78,32 @@ This plan lands four changes on one branch and in one PR:
 - Modify: `src/OverlayBehaviour.cs`
 - Modify: `AtO-ShufflePeek.csproj`
 
-- [ ] In `Patches`, add cached static members: the `CardItem` type, the `GetCardData` `MethodInfo`, and accessors for `CardName` and `CardType`.
+- [x] In `Patches`, add cached static members: the `CardItem` type, the `GetCardData` `MethodInfo`, and accessors for `CardName` and `CardType`.
   - Resolve `CardItem` with `AccessTools.TypeByName("CardItem")`.
   - Resolve `GetCardData` with `AccessTools.Method(cardItemType, "GetCardData", Type.EmptyTypes)`.
   - Take the card-data type from the method's `ReturnType`.
   - For each of `CardName` and `CardType`, resolve `AccessTools.Property(dataType, name)`. If there is no such property, fall back to `AccessTools.Field(dataType, name)`, and store a small getter (`Func<object, object>`) for whichever was found.
-- [ ] Add a `ResolveCardMembers()` method that returns false and logs the first unresolved member with `Plugin.Log.LogError`.
+- [x] Add a `ResolveCardMembers()` method that returns false and logs the first unresolved member with `Plugin.Log.LogError`.
   - Call it at the top of `Apply`, before the manager loop.
   - If it fails, log `0 patches applied` and return without patching anything. This mirrors today's handling of missing types and methods.
-- [ ] In `EnableCardsPostfix`, read the `cards` field as non-generic `System.Collections.IList`.
+- [x] In `EnableCardsPostfix`, read the `cards` field as non-generic `System.Collections.IList`.
   - Cast each element to `UnityEngine.Component` for `transform.position`.
   - Keep the null check with Unity's overloaded `==` on the `Component`, so destroyed cards are still skipped.
   - Pass the `IList` to `Overlay.Show`.
-- [ ] Change `ReadSlot` to take `object card`.
+- [x] Change `ReadSlot` to take `object card`.
   - Get `data` by invoking the cached `GetCardData`.
   - Read the name through the cached getter, cast to string.
   - Read the type through the cached getter with `Convert.ToInt32` on the boxed enum.
   - Take `gameObject.name` from `((Component)card)`.
   - The `CardSlot` fields, the face-up logic and `allFaceUp` handling stay the same.
-- [ ] In `OverlayBehaviour`, change the `cards` field and the `Show` parameter to `System.Collections.IList`.
+- [x] In `OverlayBehaviour`, change the `cards` field and the `Show` parameter to `System.Collections.IList`.
   - In `Reread`, take `cards[slot.SourceIndex] as Component` and do the null check with Unity's `==`, as before.
   - No change to drawing, the toggle or hiding.
-- [ ] Remove the `Assembly-CSharp` `<Reference>` from the csproj.
-- [ ] Verify:
+- [x] Remove the `Assembly-CSharp` `<Reference>` from the csproj.
+- [x] Verify:
   - `git grep -n CardItem src/` shows only string literals and comments.
   - `dotnet build -c Release` finishes with zero warnings.
-- [ ] Run `dotnet test tests/AtO-ShufflePeek.Tests`. All 32 tests must pass.
+- [x] Run `dotnet test tests/AtO-ShufflePeek.Tests`. All 32 tests must pass.
 
 ### Task 3: Switch Unity and BepInEx references to compile-only NuGet packages
 

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
@@ -15,8 +16,20 @@ namespace AtOShufflePeek
         // Pairs game only: indices into cards that are face up (picked or matched).
         private static readonly Dictionary<Type, FieldInfo> SelectedFields = new Dictionary<Type, FieldInfo>();
 
+        // CardItem and its card data are reached through reflection so the build needs no game assembly.
+        private static Type cardItemType;
+        private static MethodInfo getCardDataMethod;
+        private static Func<object, object> getCardName;
+        private static Func<object, object> getCardType;
+
         public static void Apply(Harmony harmony)
         {
+            if (!ResolveCardMembers())
+            {
+                Plugin.Log.LogInfo("0 patches applied");
+                return;
+            }
+
             var enableCardsPostfix = new HarmonyMethod(AccessTools.Method(typeof(Patches), nameof(EnableCardsPostfix)));
             var finishSelectionPostfix = new HarmonyMethod(AccessTools.Method(typeof(Patches), nameof(FinishSelectionPostfix)));
             var preFinishGamePostfix = new HarmonyMethod(AccessTools.Method(typeof(Patches), nameof(PreFinishGamePostfix)));
@@ -56,6 +69,51 @@ namespace AtOShufflePeek
             Plugin.Log.LogInfo($"{applied} patches applied");
         }
 
+        private static bool ResolveCardMembers()
+        {
+            cardItemType = AccessTools.TypeByName("CardItem");
+            if (cardItemType == null)
+            {
+                Plugin.Log.LogError("Type CardItem not found, skipping all patches");
+                return false;
+            }
+
+            getCardDataMethod = AccessTools.Method(cardItemType, "GetCardData", Type.EmptyTypes);
+            if (getCardDataMethod == null)
+            {
+                Plugin.Log.LogError("CardItem.GetCardData not found, skipping all patches");
+                return false;
+            }
+
+            Type dataType = getCardDataMethod.ReturnType;
+            getCardName = MemberGetter(dataType, "CardName");
+            if (getCardName == null)
+            {
+                Plugin.Log.LogError($"{dataType.Name}.CardName not found, skipping all patches");
+                return false;
+            }
+
+            getCardType = MemberGetter(dataType, "CardType");
+            if (getCardType == null)
+            {
+                Plugin.Log.LogError($"{dataType.Name}.CardType not found, skipping all patches");
+                return false;
+            }
+
+            return true;
+        }
+
+        private static Func<object, object> MemberGetter(Type type, string name)
+        {
+            PropertyInfo property = AccessTools.Property(type, name);
+            if (property != null)
+                return instance => property.GetValue(instance);
+            FieldInfo field = AccessTools.Field(type, name);
+            if (field != null)
+                return instance => field.GetValue(instance);
+            return null;
+        }
+
         private static bool TryPatch(Harmony harmony, Type type, string methodName, HarmonyMethod postfix)
         {
             MethodInfo original = AccessTools.Method(type, methodName);
@@ -86,7 +144,7 @@ namespace AtOShufflePeek
                 if (type == null || !CardsFields.TryGetValue(type, out FieldInfo cardsField))
                     return;
                 // Keep the manager's live lists: the pairs game swaps cards between indices after a miss.
-                if (!(cardsField.GetValue(__instance) is IList<CardItem> cards))
+                if (!(cardsField.GetValue(__instance) is IList cards))
                     return;
                 ICollection<int> faceUp = SelectedFields.TryGetValue(type, out FieldInfo selectedField)
                     ? selectedField.GetValue(__instance) as ICollection<int>
@@ -95,7 +153,7 @@ namespace AtOShufflePeek
                 var slots = new List<CardSlot>();
                 for (int i = 0; i < cards.Count; i++)
                 {
-                    CardItem card = cards[i];
+                    Component card = cards[i] as Component;
                     if (card == null)
                         continue;
                     Vector3 position = card.transform.position;
@@ -122,17 +180,17 @@ namespace AtOShufflePeek
         /// comes from the pairs game's selected list instead; the single-pick game has none.
         /// <paramref name="allFaceUp"/> is set once the pairs game has revealed every card at its end.
         /// </summary>
-        internal static CardSlot ReadSlot(CardItem card, float x, float y, int index, ICollection<int> faceUp, bool allFaceUp)
+        internal static CardSlot ReadSlot(object card, float x, float y, int index, ICollection<int> faceUp, bool allFaceUp)
         {
-            var data = card.GetCardData();
+            object data = getCardDataMethod.Invoke(card, null);
             return new CardSlot(
                 x,
                 y,
-                data != null ? data.CardName : null,
-                data != null ? (int)data.CardType : 0,
+                data != null ? getCardName(data) as string : null,
+                data != null ? Convert.ToInt32(getCardType(data)) : 0,
                 allFaceUp || (faceUp != null && faceUp.Contains(index)),
                 index,
-                card.gameObject.name);
+                ((Component)card).gameObject.name);
         }
 
         private static void PreFinishGamePostfix(object __instance)
