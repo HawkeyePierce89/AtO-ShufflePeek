@@ -76,7 +76,7 @@ The plugin never changes game state, so multiplayer sync is unaffected.
 - Create: `tests/AtO-ShufflePeek.Tests/AtO-ShufflePeek.Tests.csproj`
 - Create: `tests/AtO-ShufflePeek.Tests/LayoutTests.cs`
 
-- [ ] `Layout.cs` (namespace `AtOShufflePeek`, no Unity or game types):
+- [x] `Layout.cs` (namespace `AtOShufflePeek`, no Unity or game types):
   - `CardSlot` holds x, y, name, card type (int), a revealed flag, and a source index back into the manager's cards list so revealed state can be refreshed every frame.
   - `CardLayout.Build(IEnumerable<CardSlot>, float rowTolerance = 0.5f)`:
     - groups slots by y within the tolerance
@@ -88,14 +88,14 @@ The plugin never changes game state, so multiplayer sync is unaffected.
     - ASCII: `x` for Injury and `+` for Boon
     - empty for Normal
   - `FormatRow(row, bool useUnicodeMarkers)` produces plain text: `<n> <Name>` plus ` <marker>` when the marker is not empty, with entries joined by ` · `. Logging calls it with `useUnicodeMarkers: false`; the overlay passes its detected glyph support.
-- [ ] Test project: net10.0 with xunit. It links `../../src/Layout.cs` via `<Compile Include>` and must not reference any game DLL.
-- [ ] Tests:
+- [x] Test project: net10.0 with xunit. It links `../../src/Layout.cs` via `<Compile Include>` and must not reference any game DLL.
+- [x] Tests:
   - A single row in shuffled index order comes out sorted by x.
   - A 12-card pairs grid with indices 0–3 on the bottom row comes out as 3 rows, top first, numbered 1–12 from the top-left.
   - Small y jitter within the tolerance stays in one row; a y gap larger than the tolerance splits rows.
   - `FormatRow` with `useUnicodeMarkers: true` renders `✗` and `✓`; with `false` it renders `x` and `+`. Normal cards get no marker in either mode, and the ` · ` separator is correct.
   - The fallback name is used when given, and empty input yields an empty layout.
-- [ ] Run `dotnet test tests/AtO-ShufflePeek.Tests`; all tests must pass. The plugin's `dotnet build -c Release` must still be warning-free.
+- [x] Run `dotnet test tests/AtO-ShufflePeek.Tests`; all tests must pass. The plugin's `dotnet build -c Release` must still be warning-free.
 
 ### Task 3: Config and plugin wiring
 
