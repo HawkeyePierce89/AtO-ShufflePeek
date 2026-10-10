@@ -1,6 +1,0 @@
-<Project>
-  <PropertyGroup>
-    <AtOGameDir Condition="'$(AtOGameDir)' == ''">D:\SteamLibrary\steamapps\common\Across the Obelisk</AtOGameDir>
-    <BepInExDir Condition="'$(BepInExDir)' == ''">C:\git\_deps\BepInExPack_AcrossTheObelisk\BepInEx\core</BepInExDir>
-  </PropertyGroup>
-</Project>

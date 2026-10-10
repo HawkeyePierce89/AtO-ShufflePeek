@@ -112,22 +112,22 @@ This plan lands four changes on one branch and in one PR:
 - Modify: `AtO-ShufflePeek.csproj`
 - Delete: `Directory.Build.props`
 
-- [ ] Create `nuget.config` with `<clear />`, `nuget.org` (`https://api.nuget.org/v3/index.json`) and `BepInEx` (`https://nuget.bepinex.dev/v3/index.json`). The test project restores from the same file and only needs nuget.org.
-- [ ] Replace every by-path `<Reference>` and the `ManagedDir` property with these package references, pinned exactly with NuGet's bracket syntax:
+- [x] Create `nuget.config` with `<clear />`, `nuget.org` (`https://api.nuget.org/v3/index.json`) and `BepInEx` (`https://nuget.bepinex.dev/v3/index.json`). The test project restores from the same file and only needs nuget.org.
+- [x] Replace every by-path `<Reference>` and the `ManagedDir` property with these package references, pinned exactly with NuGet's bracket syntax:
   - `<PackageReference Include="UnityEngine.Modules" Version="[2022.3.62]" IncludeAssets="compile" PrivateAssets="all" />`
   - `<PackageReference Include="BepInEx.Core" Version="[5.4.21]" IncludeAssets="compile" PrivateAssets="all" />`
-- [ ] Add `<GenerateDependencyFile>false</GenerateDependencyFile>` so no `.deps.json` is produced. Keep `CopyLocalLockFileAssemblies` at its library default of false, so no package DLLs are copied.
-- [ ] Keep the `tests/**` `Compile`/`None`/`EmbeddedResource` removals.
-- [ ] Delete `Directory.Build.props`.
-- [ ] Verify the build no longer depends on the old properties:
+- [x] Add `<GenerateDependencyFile>false</GenerateDependencyFile>` so no `.deps.json` is produced. Keep `CopyLocalLockFileAssemblies` at its library default of false, so no package DLLs are copied.
+- [x] Keep the `tests/**` `Compile`/`None`/`EmbeddedResource` removals.
+- [x] Delete `Directory.Build.props`.
+- [x] Verify the build no longer depends on the old properties:
   - `git grep -n -e AtOGameDir -e BepInExDir -- . ':!docs/plans/completed'` returns only README/CLAUDE.md lines (fixed in Task 6).
   - First delete `bin/` and `obj/` of both projects (the root project and `tests/AtO-ShufflePeek.Tests`). Then run `env -u AtOGameDir -u BepInExDir dotnet build -c Release -warnaserror`. It must succeed with zero warnings.
-- [ ] Verify that `bin/Release/netstandard2.1/` contains only `AtO-ShufflePeek.dll` and `AtO-ShufflePeek.pdb`.
-- [ ] Inspect the built assembly's references with a one-off pwsh snippet using `System.Reflection.Metadata` (`PEReader` → `GetMetadataReader().AssemblyReferences`). Check that:
+- [x] Verify that `bin/Release/netstandard2.1/` contains only `AtO-ShufflePeek.dll` and `AtO-ShufflePeek.pdb`.
+- [x] Inspect the built assembly's references with a one-off pwsh snippet using `System.Reflection.Metadata` (`PEReader` → `GetMetadataReader().AssemblyReferences`). Check that:
   - `Assembly-CSharp` is absent;
   - `UnityEngine.CoreModule`, `UnityEngine.IMGUIModule`, `BepInEx` and `0Harmony` are present.
-- [ ] With the same reader, decode the `BepInPlugin` custom attribute's fixed arguments. They must read `hawkeyepierce89.ato.shufflepeek`, `ShufflePeek` and `1.0.0`.
-- [ ] Run `dotnet test tests/AtO-ShufflePeek.Tests`. All 32 tests must pass, and the test project restores without any BepInEx-feed package.
+- [x] With the same reader, decode the `BepInPlugin` custom attribute's fixed arguments. They must read `hawkeyepierce89.ato.shufflepeek`, `ShufflePeek` and `1.0.0`.
+- [x] Run `dotnet test tests/AtO-ShufflePeek.Tests`. All 32 tests must pass, and the test project restores without any BepInEx-feed package.
 
 ### Task 4: Shared version-check script
 
