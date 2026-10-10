@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 
 namespace AtOShufflePeek
 {
-    [BepInPlugin("karmanov.ato.shufflepeek", "ShufflePeek", "1.0.0")]
+    [BepInPlugin(PluginInfo.Guid, PluginInfo.Name, PluginInfo.Version)]
     public class Plugin : BaseUnityPlugin
     {
         internal static ManualLogSource Log;
@@ -44,9 +44,9 @@ namespace AtOShufflePeek
 
                 SceneManager.activeSceneChanged += OnActiveSceneChanged;
 
-                Patches.Apply(new Harmony("karmanov.ato.shufflepeek"));
+                Patches.Apply(new Harmony(PluginInfo.Guid));
 
-                Log.LogInfo("ShufflePeek 1.0.0 loaded");
+                Log.LogInfo($"{PluginInfo.Name} {PluginInfo.Version} loaded");
             }
             catch (System.Exception e)
             {

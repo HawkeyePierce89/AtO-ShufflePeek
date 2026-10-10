@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,7 +13,7 @@ namespace AtOShufflePeek
 
         private CardLayout layout;
         private MonoBehaviour manager;
-        private IList<CardItem> cards;
+        private IList cards;
         private ICollection<int> faceUp;
         private bool allFaceUp;
         private bool? useUnicodeMarkers;
@@ -25,7 +26,7 @@ namespace AtOShufflePeek
 
         /// <param name="cards">The manager's live cards list; each layout slot re-reads its index every frame.</param>
         /// <param name="faceUp">The pairs game's live list of face-up indices, or null.</param>
-        public void Show(MonoBehaviour manager, IList<CardItem> cards, ICollection<int> faceUp, CardLayout layout)
+        public void Show(MonoBehaviour manager, IList cards, ICollection<int> faceUp, CardLayout layout)
         {
             this.manager = manager;
             this.cards = cards;
@@ -153,8 +154,8 @@ namespace AtOShufflePeek
         // While a swap is in flight the same card can briefly sit at two indices; it settles when the move ends.
         private CardSlot Reread(CardSlot slot)
         {
-            CardItem card = cards[slot.SourceIndex];
-            return card != null ? Patches.ReadSlot(card, slot.X, slot.Y, slot.SourceIndex, faceUp, allFaceUp) : slot;
+            object card = cards[slot.SourceIndex];
+            return Patches.IsCardItem(card) ? Patches.ReadSlot(card, slot.X, slot.Y, slot.SourceIndex, faceUp, allFaceUp) : slot;
         }
 
         private void Fail(string where, Exception e)

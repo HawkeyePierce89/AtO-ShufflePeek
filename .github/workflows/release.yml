@@ -1,0 +1,49 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Check tag matches version
+        id: version
+        run: pwsh scripts/check-version.ps1 -Tag "$GITHUB_REF_NAME"
+
+      - name: Restore
+        run: |
+          dotnet restore AtO-ShufflePeek.csproj
+          dotnet restore tests/AtO-ShufflePeek.Tests
+
+      - name: Build
+        run: dotnet build AtO-ShufflePeek.csproj -c Release --no-restore -warnaserror
+
+      - name: Test
+        run: dotnet test tests/AtO-ShufflePeek.Tests -c Release --no-restore
+
+      - name: Package
+        run: |
+          mkdir -p staging
+          cp bin/Release/netstandard2.1/AtO-ShufflePeek.dll README.md LICENSE staging/
+          zip -j "AtO-ShufflePeek-v${{ steps.version.outputs.version }}.zip" staging/*
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" --generate-notes \
+            bin/Release/netstandard2.1/AtO-ShufflePeek.dll \
+            "AtO-ShufflePeek-v${{ steps.version.outputs.version }}.zip"
