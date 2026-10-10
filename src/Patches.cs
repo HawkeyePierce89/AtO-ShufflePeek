@@ -103,6 +103,9 @@ namespace AtOShufflePeek
             return true;
         }
 
+        // Unity equality also treats a destroyed card as null.
+        internal static bool IsCardItem(object value) => value is Component c && c != null && cardItemType.IsInstanceOfType(c);
+
         private static Func<object, object> MemberGetter(Type type, string name)
         {
             PropertyInfo property = AccessTools.Property(type, name);
@@ -153,9 +156,9 @@ namespace AtOShufflePeek
                 var slots = new List<CardSlot>();
                 for (int i = 0; i < cards.Count; i++)
                 {
-                    Component card = cards[i] as Component;
-                    if (card == null)
+                    if (!IsCardItem(cards[i]))
                         continue;
+                    var card = (Component)cards[i];
                     Vector3 position = card.transform.position;
                     slots.Add(ReadSlot(card, position.x, position.y, i, faceUp, allFaceUp: false));
                 }

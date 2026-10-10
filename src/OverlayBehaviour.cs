@@ -154,8 +154,8 @@ namespace AtOShufflePeek
         // While a swap is in flight the same card can briefly sit at two indices; it settles when the move ends.
         private CardSlot Reread(CardSlot slot)
         {
-            Component card = cards[slot.SourceIndex] as Component;
-            return card != null ? Patches.ReadSlot(card, slot.X, slot.Y, slot.SourceIndex, faceUp, allFaceUp) : slot;
+            object card = cards[slot.SourceIndex];
+            return Patches.IsCardItem(card) ? Patches.ReadSlot(card, slot.X, slot.Y, slot.SourceIndex, faceUp, allFaceUp) : slot;
         }
 
         private void Fail(string where, Exception e)
