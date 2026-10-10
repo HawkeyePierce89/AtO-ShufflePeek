@@ -134,16 +134,16 @@ This plan lands four changes on one branch and in one PR:
 **Files:**
 - Create: `scripts/check-version.ps1`
 
-- [ ] Write a pwsh script with a mandatory `-Tag` parameter:
+- [x] Write a pwsh script with a mandatory `-Tag` parameter:
   - It reads the plugin version with `dotnet msbuild <repo>/AtO-ShufflePeek.csproj -getProperty:Version`, using a path resolved from `$PSScriptRoot`.
   - If `-Tag` is not `v<version>`, it fails with `Write-Error` and `exit 1`, naming both values.
   - If the tag matches, it prints the version and, when `$env:GITHUB_OUTPUT` is set, appends `version=<version>` to it.
   - It sets `$ErrorActionPreference = 'Stop'` and checks `$LASTEXITCODE` after the `dotnet` call.
-- [ ] Dry run locally:
+- [x] Dry run locally:
   - `pwsh scripts/check-version.ps1 -Tag v9.9.9` must exit non-zero with a mismatch message.
   - `pwsh scripts/check-version.ps1 -Tag v1.0.0` must exit 0 and print `1.0.0`.
   - Also confirm that `-Tag 1.0.0` (without the `v`) is rejected.
-- [ ] Run `dotnet test tests/AtO-ShufflePeek.Tests`. All tests must still pass.
+- [x] Run `dotnet test tests/AtO-ShufflePeek.Tests`. All tests must still pass.
 
 ### Task 5: GitHub Actions workflows
 
