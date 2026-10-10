@@ -119,28 +119,28 @@ The plugin never changes game state, so multiplayer sync is unaffected.
 - Modify: `src/Layout.cs` (only if colour selection is extracted)
 - Modify: `tests/AtO-ShufflePeek.Tests/LayoutTests.cs`
 
-- [ ] State:
+- [x] State:
   - the captured `CardLayout`
   - a reference to the source manager (`MonoBehaviour`)
   - the cards list reference, for the per-frame `cardrevealed` reads
   - a `visible` flag
   - a cached `bool? useUnicodeMarkers`
-- [ ] Public API: `Show(MonoBehaviour manager, IList<CardItem> cards, CardLayout layout)` and `Hide()`.
-- [ ] Glyph detection, run once on the first `OnGUI` call (when `GUI.skin` is available):
+- [x] Public API: `Show(MonoBehaviour manager, IList<CardItem> cards, CardLayout layout)` and `Hide()`.
+- [x] Glyph detection, run once on the first `OnGUI` call (when `GUI.skin` is available):
   - Take the active label style's font: `style.font ?? GUI.skin.font`.
   - Call `font.RequestCharactersInTexture("✓✗", fontSize)`, then check `font.HasCharacter('\u2713') && font.HasCharacter('\u2717')`.
   - Cache the result in `useUnicodeMarkers`. If the font is null or either glyph is missing, use ASCII markers (`+` for Boon, `x` for Injury) so no tofu boxes are drawn.
   - Log the chosen marker set once at Info.
-- [ ] `Update`:
+- [x] `Update`:
   - If the manager is set but now destroyed (Unity null check), hide the overlay.
   - If `Hotkey.Toggle.Value.IsDown()` and a layout has been captured, toggle `visible`.
-- [ ] `OnGUI` returns early unless `Enabled` is on, `visible` is true and a layout exists. Otherwise it:
+- [x] `OnGUI` returns early unless `Enabled` is on, `visible` is true and a layout exists. Otherwise it:
   - Builds a `GUIStyle` with `richText`, using the live `FontSize`.
   - Picks a colour per entry: grey if `cardrevealed` (read live from `CardItem`), otherwise red for Injury, green for Boon, white for anything else.
   - Composes rich-text lines with `CardLayout.MarkerFor(kind, useUnicodeMarkers)` and measures them with `CalcSize`.
   - Draws a semi-transparent dark box (`GUI.color` with alpha, `GUI.DrawTexture` with `Texture2D.whiteTexture`) at the live `PositionX`/`PositionY`, then draws the labels on top.
-- [ ] Wrap the `OnGUI` and `Update` bodies in a try/catch that logs once and hides the overlay, to avoid log spam.
-- [ ] Tests: if the rich-text colour selection is pure logic, move it into `Layout.cs` as `CardLayout.ColorFor(kind, revealed)` and cover it in `LayoutTests`. The marker variants are already covered by Task 2. Run `dotnet test` and the Release build.
+- [x] Wrap the `OnGUI` and `Update` bodies in a try/catch that logs once and hides the overlay, to avoid log spam.
+- [x] Tests: if the rich-text colour selection is pure logic, move it into `Layout.cs` as `CardLayout.ColorFor(kind, revealed)` and cover it in `LayoutTests`. The marker variants are already covered by Task 2. Run `dotnet test` and the Release build.
 
 ### Task 5: Harmony patches
 

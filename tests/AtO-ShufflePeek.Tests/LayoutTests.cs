@@ -177,6 +177,54 @@ namespace AtOShufflePeek.Tests
             Assert.True(CardLayout.Build(null).IsEmpty);
         }
 
+        [Theory]
+        [InlineData(CardKind.Injury, false, CardLayout.InjuryColor)]
+        [InlineData(CardKind.Boon, false, CardLayout.BoonColor)]
+        [InlineData(CardKind.Normal, false, CardLayout.NormalColor)]
+        [InlineData(CardKind.Injury, true, CardLayout.RevealedColor)]
+        [InlineData(CardKind.Boon, true, CardLayout.RevealedColor)]
+        [InlineData(CardKind.Normal, true, CardLayout.RevealedColor)]
+        public void ColorFor_RevealedIsGrey_OtherwiseByKind(CardKind kind, bool revealed, string expected)
+        {
+            Assert.Equal(expected, CardLayout.ColorFor(kind, revealed));
+        }
+
+        [Fact]
+        public void FormatRichRow_WrapsEntriesInColorTags()
+        {
+            var layout = CardLayout.Build(new[]
+            {
+                Slot(0f, 0f, "Wound", 18),
+                Slot(1f, 0f, "Blessing", 21),
+                Slot(2f, 0f, "Strike"),
+            });
+
+            Assert.Equal(
+                "<color=#FF5252>1 Wound ✗</color> · <color=#69F0AE>2 Blessing ✓</color> · <color=#FFFFFF>3 Strike</color>",
+                CardLayout.FormatRichRow(layout.Rows[0], useUnicodeMarkers: true));
+            Assert.Equal(
+                "<color=#FF5252>1 Wound x</color> · <color=#69F0AE>2 Blessing +</color> · <color=#FFFFFF>3 Strike</color>",
+                CardLayout.FormatRichRow(layout.Rows[0], useUnicodeMarkers: false));
+        }
+
+        [Fact]
+        public void FormatRichRow_UsesLiveRevealedState()
+        {
+            var layout = CardLayout.Build(new[]
+            {
+                new CardSlot(0f, 0f, "Wound", 18, revealed: false, sourceIndex: 0),
+                new CardSlot(1f, 0f, "Strike", 0, revealed: true, sourceIndex: 1),
+            });
+
+            Assert.Equal(
+                "<color=#FF5252>1 Wound x</color> · <color=#9E9E9E>2 Strike</color>",
+                CardLayout.FormatRichRow(layout.Rows[0], false));
+            Assert.Equal(
+                "<color=#9E9E9E>1 Wound x</color> · <color=#FFFFFF>2 Strike</color>",
+                CardLayout.FormatRichRow(layout.Rows[0], false, s => s.SourceIndex == 0));
+            Assert.Equal(string.Empty, CardLayout.FormatRichRow(null, false));
+        }
+
         [Fact]
         public void NullSlots_AreIgnored()
         {

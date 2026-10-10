@@ -130,5 +130,38 @@ namespace AtOShufflePeek
                 return string.Empty;
             return string.Join(Separator, row.Select(s => FormatEntry(s, useUnicodeMarkers)));
         }
+
+        public const string RevealedColor = "#9E9E9E";
+        public const string InjuryColor = "#FF5252";
+        public const string BoonColor = "#69F0AE";
+        public const string NormalColor = "#FFFFFF";
+
+        /// <summary>Rich-text colour for an entry: grey once face up, otherwise by kind.</summary>
+        public static string ColorFor(CardKind kind, bool revealed)
+        {
+            if (revealed)
+                return RevealedColor;
+            switch (kind)
+            {
+                case CardKind.Injury: return InjuryColor;
+                case CardKind.Boon: return BoonColor;
+                default: return NormalColor;
+            }
+        }
+
+        /// <summary>
+        /// IMGUI rich-text row. <paramref name="isRevealed"/> maps a slot to its live revealed state;
+        /// when null the captured <see cref="CardSlot.Revealed"/> is used.
+        /// </summary>
+        public static string FormatRichRow(IEnumerable<CardSlot> row, bool useUnicodeMarkers, Func<CardSlot, bool> isRevealed = null)
+        {
+            if (row == null)
+                return string.Empty;
+            return string.Join(Separator, row.Select(s =>
+            {
+                bool revealed = isRevealed != null ? isRevealed(s) : s.Revealed;
+                return "<color=" + ColorFor(s.Kind, revealed) + ">" + FormatEntry(s, useUnicodeMarkers) + "</color>";
+            }));
+        }
     }
 }
