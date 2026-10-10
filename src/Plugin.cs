@@ -1,6 +1,7 @@
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
+using HarmonyLib;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -40,6 +41,8 @@ namespace AtOShufflePeek
             Overlay = host.AddComponent<OverlayBehaviour>();
 
             SceneManager.activeSceneChanged += OnActiveSceneChanged;
+
+            Patches.Apply(new Harmony("karmanov.ato.shufflepeek"));
 
             Log.LogInfo("ShufflePeek 1.0.0 loaded");
         }

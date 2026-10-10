@@ -148,22 +148,22 @@ The plugin never changes game state, so multiplayer sync is unaffected.
 - Create: `src/Patches.cs`
 - Modify: `src/Plugin.cs`
 
-- [ ] `Patches.Apply(Harmony h)` loops over the type names `"CardPlayerManager"` and `"CardPlayerPairsManager"`:
+- [x] `Patches.Apply(Harmony h)` loops over the type names `"CardPlayerManager"` and `"CardPlayerPairsManager"`:
   - Resolve each type with `AccessTools.TypeByName(name)`. Never use `typeof(...)`, so a renamed or removed class cannot throw `TypeLoadException` on plugin load. If the type is null, log a warning and skip both of its patches.
   - Resolve `AccessTools.Field(type, "cards")` at patch time and store it in a `Dictionary<Type, FieldInfo>`. If the field is null, log a warning and skip only the `EnableCards` patch for that type.
   - Resolve `AccessTools.Method(type, "EnableCards")` and `AccessTools.Method(type, "FinishSelection")`. If either is null, log a warning and skip it.
   - Otherwise call `h.Patch(original, postfix: new HarmonyMethod(...))` inside a try/catch and log "applied" at Info.
   - Expected log on load: 4 applied patches.
-- [ ] One shared `EnableCardsPostfix(object __instance)` serves both managers:
+- [x] One shared `EnableCardsPostfix(object __instance)` serves both managers:
   - Look up the `FieldInfo` for `__instance.GetType()` in the dictionary and read the list as `IEnumerable`.
   - Cast each element to `CardItem` and read data through the strongly typed API: `GetCardData()` (`CardName`, `(int)CardType`), falling back to `gameObject.name` when the data is null. Also read `transform.position.x/y` and `cardrevealed`.
   - Build the `CardLayout` and log each row at Info with `FormatRow(row, useUnicodeMarkers: false)`, so log lines are always ASCII.
   - Call `Overlay.Show(__instance as MonoBehaviour, cards, layout)`.
   - The body is wrapped in a try/catch, and the postfix only reads.
-- [ ] One shared `FinishSelectionPostfix()` calls `Overlay.Hide()` inside a try/catch.
-- [ ] Call `Patches.Apply` from `Plugin.Awake` with `new Harmony("karmanov.ato.shufflepeek")`.
-- [ ] Grep the sources to confirm there is no `UnityEngine.Random`, no `Debug.Log`, no `typeof(CardPlayerManager)` or `typeof(CardPlayerPairsManager)`, and no field writes on game objects.
-- [ ] Tests: building slots from game objects can't be unit-tested without Unity, so check it with the build. The ASCII log formatting is already covered by the `FormatRow` tests. Re-run `dotnet test` and the warning-free `dotnet build -c Release`.
+- [x] One shared `FinishSelectionPostfix()` calls `Overlay.Hide()` inside a try/catch.
+- [x] Call `Patches.Apply` from `Plugin.Awake` with `new Harmony("karmanov.ato.shufflepeek")`.
+- [x] Grep the sources to confirm there is no `UnityEngine.Random`, no `Debug.Log`, no `typeof(CardPlayerManager)` or `typeof(CardPlayerPairsManager)`, and no field writes on game objects.
+- [x] Tests: building slots from game objects can't be unit-tested without Unity, so check it with the build. The ASCII log formatting is already covered by the `FormatRow` tests. Re-run `dotnet test` and the warning-free `dotnet build -c Release`.
 
 ### Task 6: Verify acceptance criteria
 
