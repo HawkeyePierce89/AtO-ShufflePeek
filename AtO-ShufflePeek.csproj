@@ -7,6 +7,10 @@
     <LangVersion>latest</LangVersion>
     <Nullable>disable</Nullable>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <Version>1.0.0</Version>
+    <PluginGuid>hawkeyepierce89.ato.shufflepeek</PluginGuid>
+    <PluginName>ShufflePeek</PluginName>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <ManagedDir>$(AtOGameDir)\AcrossTheObelisk_Data\Managed</ManagedDir>
   </PropertyGroup>
 
@@ -46,5 +50,26 @@
       <Private>false</Private>
     </Reference>
   </ItemGroup>
+
+  <Target Name="GeneratePluginInfo" BeforeTargets="CoreCompile"
+          Inputs="$(MSBuildProjectFullPath)" Outputs="$(IntermediateOutputPath)PluginInfo.g.cs">
+    <ItemGroup>
+      <_PluginInfoLine Include="namespace AtOShufflePeek" />
+      <_PluginInfoLine Include="{" />
+      <_PluginInfoLine Include="    internal static class PluginInfo" />
+      <_PluginInfoLine Include="    {" />
+      <_PluginInfoLine Include="        public const string Guid = &quot;$(PluginGuid)&quot;%3B" />
+      <_PluginInfoLine Include="        public const string Name = &quot;$(PluginName)&quot;%3B" />
+      <_PluginInfoLine Include="        public const string Version = &quot;$(Version)&quot;%3B" />
+      <_PluginInfoLine Include="    }" />
+      <_PluginInfoLine Include="}" />
+    </ItemGroup>
+    <WriteLinesToFile File="$(IntermediateOutputPath)PluginInfo.g.cs" Lines="@(_PluginInfoLine)"
+                      Overwrite="true" WriteOnlyWhenDifferent="true" />
+    <ItemGroup>
+      <Compile Include="$(IntermediateOutputPath)PluginInfo.g.cs" />
+      <FileWrites Include="$(IntermediateOutputPath)PluginInfo.g.cs" />
+    </ItemGroup>
+  </Target>
 
 </Project>

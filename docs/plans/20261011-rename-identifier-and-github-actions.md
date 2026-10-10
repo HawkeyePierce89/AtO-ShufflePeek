@@ -53,23 +53,23 @@ This plan lands four changes on one branch and in one PR:
 - Modify: `AtO-ShufflePeek.csproj`
 - Modify: `src/Plugin.cs`
 
-- [ ] In the csproj `PropertyGroup`, add `<Version>1.0.0</Version>`, `<PluginGuid>hawkeyepierce89.ato.shufflepeek</PluginGuid>` and `<PluginName>ShufflePeek</PluginName>`. Also add `<IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>` so the informational version stays exactly `1.0.0`. `AssemblyVersion`, `FileVersion` and `InformationalVersion` then come from `Version` through the SDK's default assembly-info generation.
-- [ ] Add a target `GeneratePluginInfo` that runs `BeforeTargets="CoreCompile"`, with `Inputs` set to `$(MSBuildProjectFullPath)` and `Outputs` set to the generated file.
+- [x] In the csproj `PropertyGroup`, add `<Version>1.0.0</Version>`, `<PluginGuid>hawkeyepierce89.ato.shufflepeek</PluginGuid>` and `<PluginName>ShufflePeek</PluginName>`. Also add `<IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>` so the informational version stays exactly `1.0.0`. `AssemblyVersion`, `FileVersion` and `InformationalVersion` then come from `Version` through the SDK's default assembly-info generation.
+- [x] Add a target `GeneratePluginInfo` that runs `BeforeTargets="CoreCompile"`, with `Inputs` set to `$(MSBuildProjectFullPath)` and `Outputs` set to the generated file.
   - It writes `$(IntermediateOutputPath)PluginInfo.g.cs` with `WriteLinesToFile` (`Overwrite="true"`, `WriteOnlyWhenDifferent="true"`).
   - The file holds `namespace AtOShufflePeek { internal static class PluginInfo { public const string Guid = "$(PluginGuid)"; public const string Name = "$(PluginName)"; public const string Version = "$(Version)"; } }`.
   - `WriteLinesToFile` splits its `Lines` item list on semicolons, so a literal `;` would end the item and be dropped. Write every semicolon in the generated code as `%3B` inside the target. The simplest form is one `Line` item per statement, each ending in `%3B`, for example `<_PluginInfoLine Include="    public const string Guid = &quot;$(PluginGuid)&quot;%3B" />`.
   - The target adds the file to `Compile` and to `FileWrites`.
   - Because the file lives under `obj/`, it is never hand-edited or committed.
-- [ ] In `src/Plugin.cs`:
+- [x] In `src/Plugin.cs`:
   - Change the attribute to `[BepInPlugin(PluginInfo.Guid, PluginInfo.Name, PluginInfo.Version)]`.
   - Use `new Harmony(PluginInfo.Guid)`.
   - Change the log line to `$"{PluginInfo.Name} {PluginInfo.Version} loaded"`.
   - This leaves no literal GUID, name or version in the C# source.
-- [ ] Verify:
+- [x] Verify:
   - `dotnet build -c Release` succeeds with zero warnings. This proves that `obj/Release/netstandard2.1/PluginInfo.g.cs` compiles.
   - `obj/Release/netstandard2.1/PluginInfo.g.cs` contains the new GUID and `1.0.0`, and every statement in it ends with a `;`.
   - `git grep -n "1\.0\.0" -- . ':!docs/plans/completed'` shows the version only in `AtO-ShufflePeek.csproj`.
-- [ ] Run `dotnet test tests/AtO-ShufflePeek.Tests`. All 32 tests must pass.
+- [x] Run `dotnet test tests/AtO-ShufflePeek.Tests`. All 32 tests must pass.
 
 ### Task 2: Replace compile-time CardItem use with cached reflection and drop Assembly-CSharp
 
