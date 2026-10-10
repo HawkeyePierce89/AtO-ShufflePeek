@@ -174,14 +174,14 @@ The plugin never changes game state, so multiplayer sync is unaffected.
 
 ### Task 7: Update documentation
 
-- [ ] Rewrite `README.md` in English, covering:
+- [x] Rewrite `README.md` in English, covering:
   - what the plugin does, for both minigames
   - the ASCII marker fallback when the game font lacks ✓/✗
   - why it is multiplayer-safe (read-only, and every peer replays the same deterministic shuffle)
   - how to build: the `AtOGameDir` / `BepInExDir` properties with override examples, `dotnet build -c Release`, and `dotnet test`
   - manual install: copy the single DLL into `BepInEx/plugins`
   - the config options with their defaults and the live-reload behaviour
-- [ ] No CLAUDE.md exists. Skip it unless the patterns warrant one.
+- [x] No CLAUDE.md exists. Skip it unless the patterns warrant one. (skipped - the README and the plan cover the conventions)
 
 ## Post-Completion (manual, in-game)
 
